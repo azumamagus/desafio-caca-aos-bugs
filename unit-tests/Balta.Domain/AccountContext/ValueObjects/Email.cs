@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Balta.Domain.AccountContext.ValueObjects.Exceptions;
-using Balta.Domain.SharedContext.Abstractions;
+using Balta.Domain.SharedContext.DateTimes;
+using Balta.Domain.SharedContext.DateTimes.Abstractions;
 using Balta.Domain.SharedContext.Extensions;
 using Balta.Domain.SharedContext.ValueObjects;
 
@@ -11,6 +12,12 @@ public partial record Email : ValueObject
     #region Constants
 
     private const string Pattern = @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
+
+    #endregion
+
+    #region Fields
+
+    private readonly static IDateTimeProvider? _dateTimeProvider = new DateTimeProvider();
 
     #endregion
 
@@ -27,7 +34,7 @@ public partial record Email : ValueObject
 
     #region Factories
 
-    public static Email ShouldCreate(string address, IDateTimeProvider dateTimeProvider)
+    public static Email ShouldCreate(string address, IDateTimeProvider? dateTimeProvider)
     {
         address = address.Trim();
         address = address.ToLower();
@@ -60,6 +67,9 @@ public partial record Email : ValueObject
 
     public static implicit operator string(Email email)
         => email.ToString();
+
+    public static explicit operator Email(string email)
+        => ShouldCreate(email, _dateTimeProvider);
 
     #endregion
 

@@ -1,6 +1,8 @@
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Cryptography;
 using Balta.Domain.AccountContext.ValueObjects.Exceptions;
 using Balta.Domain.SharedContext.ValueObjects;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Balta.Domain.AccountContext.ValueObjects;
 
@@ -52,8 +54,8 @@ public record Password : ValueObject
     #region Properties
 
     public string Hash { get; }
-    public DateTime? ExpiresAtUtc { get; }
-    public bool MustChange { get; }
+    public DateTime? ExpiresAtUtc { get; private set; }
+    public bool MustChange { get; private set; }
 
     #endregion
 
@@ -104,6 +106,28 @@ public record Password : ValueObject
         var keyToCheck = algorithm.GetBytes(keySize);
 
         return keyToCheck.SequenceEqual(key);
+    }
+
+    public Password SetExpirationDate(DateTime? expirationDate)
+    {
+        return this with { ExpiresAtUtc = expirationDate };
+    }
+
+    public void ValidateExpiration(DateTime date)
+    {
+        if (ExpiresAtUtc.HasValue && date > ExpiresAtUtc.Value)
+            throw new InvalidPasswordException("Password has expired");
+    }
+
+    public Password SetMustChange()
+    {
+        return this with { MustChange = true };
+    }
+
+    public void ValidateMustChange()
+    {
+        if (MustChange)
+            throw new InvalidPasswordException("Password must be changed");
     }
 
     #endregion

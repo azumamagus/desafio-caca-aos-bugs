@@ -1,4 +1,4 @@
-using Balta.Domain.SharedContext.Abstractions;
+using Balta.Domain.SharedContext.DateTimes.Abstractions;
 
 namespace Balta.Domain.SharedContext.ValueObjects;
 
